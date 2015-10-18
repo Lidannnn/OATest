@@ -1,0 +1,37 @@
+{% block nav_bar %}
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Navbar Brand -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle Navbar</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">考勤管理系统</a>
+        </div>
+        <!-- nav content -->
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+            {% set index='active' if active_tag=='index' else '' %}
+            {% set user_manage='active' if active_tag=='user_manage' else '' %}
+            {% set attence_manage='active' if active_tag=='attence_manage' else '' %}
+            <ul class="nav navbar-nav">
+                <li class="{{index}}">
+                    <a href="/">首页</a>
+                </li>
+                <li class="{{user_manage}}">
+                    <a href="/admin/user/">用户管理</a>
+                </li>
+                <li class="{{attence_manage}}">
+                    <a href="/admin/attence/">异常考勤管理</a>
+                </li>
+            </ul>
+            <p class="navbar-text navbar-right">
+                Hi, {{current_user.name}}
+                <a href="/logout/" style="color: #FF0000;"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
+            </p>
+        </div>
+    </div>
+</nav>
+{% end %}

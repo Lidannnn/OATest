@@ -1,0 +1,22 @@
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    /*background-color: #8c8c8c;*/
+    font-family: "Microsoft YaHei";
+}
+
+thead {
+    font-weight: bold;
+}
+
+.form-login {
+    max-width: 420px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.form-register {
+    max-width: 520px;
+    padding: 15px;
+    margin: 0 auto;
+}

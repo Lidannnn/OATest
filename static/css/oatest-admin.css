@@ -1,0 +1,19 @@
+body {
+    font-family: "Microsoft YaHei";
+}
+
+thead {
+    font-weight: bold;
+}
+
+.form-login {
+    max-width: 420px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.form-register {
+    max-width: 520px;
+    padding: 15px;
+    margin: 0 auto;
+}

@@ -1,0 +1,72 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% block main_content %}
+{% if not current_user.company %}
+<div class="alert alert-danger" role="alert">
+    <p>您没有填写公司信息，请尽快填写</p>
+</div>
+{% end %}
+{% if not current_user.team %}
+<div class="alert alert-danger" role="alert">
+    <p>您没有填写工作组信息，请尽快填写</p>
+</div>
+{% end %}
+<form class="form-horizontal" style="max-width: 500px;" method="post">
+    <div class="form-group">
+        <label for="user-name" class="col-sm-3 control-label">姓名</label>
+        <div class="col-sm-9">
+            <input id="user-name" name="user-name" class="form-control" type="text" value="{{current_user.name}}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-email" class="col-sm-3 control-label">邮箱</label>
+        <div class="input-group col-sm-9" style="padding-left: 15px; padding-right: 15px">
+            <input id="user-email" name="user-email" type="text" class="form-control" value="{{current_user.email.split('@')[0]}}">
+            <span class="input-group-addon" id="mail_addon">@qiyi.com</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-pwd" class="col-sm-3 control-label">密码</label>
+        <div class="col-sm-9">
+            <input id="user-pwd" name="user-pwd" class="form-control" type="text" value="{{current_user.passcode}}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-worktime" class="col-sm-3 control-label">上班时间</label>
+        <div class="col-sm-9">
+            <select id="user-worktime" name="user-worktime" class="form-control">
+                {% if current_user.banci == '09:00' %}
+                <option selected="selected">09:00</option>
+                {% else %}
+                <option>09:00</option>
+                {% end %}
+                {% if current_user.banci == '09:30' %}
+                <option selected="selected">09:30</option>
+                {% else %}
+                <option>09:30</option>
+                {% end %}
+                {% if current_user.banci == '10:00' %}
+                <option selected="selected">10:00</option>
+                {% else %}
+                <option>10:00</option>
+                {% end %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-company" class="col-sm-3 control-label">公司</label>
+        <div class="col-sm-9">
+            <input id="user-company" name="user-company" class="form-control" type="text" value="{{current_user.company if current_user.company is not None else ''}}" placeholder="请填入您所在公司的名称">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-team" class="col-sm-3 control-label">奇艺工作组</label>
+        <div class="col-sm-9">
+            <input id="user-team" name="user-team" class="form-control" type="text" value="{{current_user.team if current_user.team is not None else ''}}" placeholder="请填入您在爱奇艺所在的工作组, 如：测试组">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary pull-right">保存</button>
+</form>
+{% end %}

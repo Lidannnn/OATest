@@ -1,0 +1,32 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% block main_content %}
+<p>
+    {% if not is_checkin %}
+    <button id="btn-checkin" type="button" class="btn btn-primary">上班打卡</button>
+    {% else %}
+    <button id="btn-checkin" type="button" class="btn btn-primary" disabled="disabled">上班打卡</button>
+    <span>{{checkin_time}}</span>
+    {% end %}
+</p>
+<p>
+    {% if is_checkin and not is_checkout %}
+    <button id="btn-checkout" type="button" class="btn btn-primary">下班打卡</button>
+    {% else %}
+    <button id="btn-checkout" type="button" class="btn btn-primary" disabled="disabled">下班打卡</button>
+    <span>{{checkout_time}}</span>
+    {% end %}
+</p>
+<div class="panel panel-info">
+    <div class="panel-heading">通知</div>
+    <div class="panel-body">
+        <ul>
+            <li>系统追加<mark><strong>外包公司信息</strong></mark>和<mark><strong>所在工作组</strong></mark>两项内容，请在个人信息中修改</li>
+            <li>目前不支持凌晨12:00之后打下班卡</li>
+            <li>如有问题请发送邮件反馈给songbowen@qiyi.com, 并抄送wutiantina@qiyi.com, meiqian@qiyi.com</li>
+        </ul>
+    </div>
+</div>
+{% end %}

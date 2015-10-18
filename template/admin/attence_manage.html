@@ -1,0 +1,47 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% import datetime %}
+
+{% block main_content %}
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr style="text-align: center;">
+        <td>姓名</td>
+        <td>邮箱</td>
+        <td>考勤日期</td>
+        <td><abbr title="Original/Modified">上班时间</abbr></td>
+        <td><abbr title="Original/Modified">下班时间</abbr></td>
+        <td>说明</td>
+        <td>操作</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user, attence, modify_attence in results %}
+    <tr>
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{attence.date}}</td>
+        <td>
+            <span style="color: #FF0000;">{{modify_attence.original_login}}</span>/<span style="color: #00FF00;">{{modify_attence.modified_login}}</span>
+        </td>
+        <td>
+            <span style="color: #FF0000;">{{modify_attence.original_logout}}</span>/<span style="color: #00FF00;">{{modify_attence.modified_logout}}</span>
+        </td>
+        <td>{{modify_attence.info}}</td>
+        <td>
+            {% if modify_attence.modify_status == 'todo' %}
+            <button type="button" class="btn btn-primary btn-pass" data-check_date="{{modify_attence.date}}" data-uid="{{user.id}}">通过</button>
+            <button type="button" class="btn btn-danger btn-reject" data-check_date="{{modify_attence.date}}" data-uid="{{user.id}}">驳回</button>
+            {% elif modify_attence.modify_status == 'pass' %}
+            <p>已通过</p>
+            {% elif modify_attence.modify_status == 'reject' %}
+            <p>已拒绝</p>
+            {% end %}
+        </td>
+    </tr>
+    {% end %}
+    </tbody>
+</table>
+{% end %}

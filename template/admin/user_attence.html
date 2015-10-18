@@ -1,0 +1,49 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% block main_content %}
+<!-- search box -->
+<form class="form-inline" method="post">
+    <div class="form-group">
+        <label for="user-name">姓名</label>
+        <input id="user-name" type="text" class="form-control" value="{{user.name}}" disabled>
+    </div>
+    <div class="form-group">
+        <label for="late-hour">缺勤时间/h</label>
+        <input id="late-hour" type="text" class="form-control" value="{{late_hour}}" disabled>
+    </div>
+    <div class="form-group">
+        <label for="overtime-hour">加班时间/h</label>
+        <input id="overtime-hour" type="text" class="form-control" value="{{overtime_hour}}" disabled>
+    </div>
+    <div class="form-group">
+        <label for="search-month">月份</label>
+        <input id="search-month" name="search-month" type="month" class="form-control" value="{{the_month}}">
+    </div>
+    <button type="submit" class="btn btn-default">查询</button>
+</form>
+<!-- table -->
+<table class="table table-hover">
+    <thead>
+    <tr style="text-align: center">
+        <td>日期</td>
+        <td>上班打卡</td>
+        <td>下班打卡</td>
+        <td>考勤状态</td>
+        <td>备注</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for attence in attences %}
+    <tr>
+        <td>{{attence.date}}</td>
+        <td>{{attence.login if attence.login is not None else ''}}</td>
+        <td>{{attence.logout if attence.logout is not None else ''}}</td>
+        <td>{{attence.status if attence.status is not None else ''}}</td>
+        <td>{{attence.info if attence.info is not None else ''}}</td>
+    </tr>
+    {% end %}
+    </tbody>
+</table>
+{% end %}

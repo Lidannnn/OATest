@@ -1,0 +1,48 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% import datetime %}
+
+{% block main_content %}
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr style="text-align: center;">
+        <td>#</td>
+        <td>姓名</td>
+        <td>邮箱</td>
+        <td>注册日期</td>
+        <td>公司</td>
+        <td>工作组</td>
+        <td>上班时间</td>
+        <td>迟到次数</td>
+        <td>缺勤时间/h</td>
+        <td><abbr title="Taken/Total">调休时间/h</abbr></td>
+        <td>操作</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    {% set user_status = 'danger' if user.is_present == 0 else '' %}
+    <tr class="{{user_status}}">
+        <td>{{user.id}}</td>
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.createdate.strftime('%Y-%m-%d')}}</td>
+        <td>{{user.company if user.team is not None else ''}}</td>
+        <td>{{user.team if user.team is not None else ''}}</td>
+        <td>{{user.banci}}</td>
+        <td>{{user.latecount}}</td>
+        <td>{{user.late_hour}}</td>
+        <td>{{user.off_hour_taken}}/{{user.off_hour_total}}</td>
+        <td>
+            <button type="button" class="btn btn-default btn-sm btn-view-attence" data-uid="{{user.id}}">考勤记录</button>
+            {% if user.is_present == 1 %}
+            <button type="button" class="btn btn-danger btn-sm btn-dismiss" data-uid="{{user.id}}">离职</button>
+            {% end %}
+        </td>
+    </tr>
+    {% end %}
+    </tbody>
+</table>
+{% end %}

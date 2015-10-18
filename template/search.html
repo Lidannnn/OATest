@@ -1,0 +1,102 @@
+{% extends "site_base.html" %}
+
+{% include "nav_bar.html" %}
+
+{% block main_content %}
+<!-- search box -->
+<form class="form-inline" method="post">
+    <div class="form-group">
+        <label for="search-month">月份</label>
+        <input id="search-month" name="search-month" type="month" class="form-control" value="{{the_month}}">
+    </div>
+    <button type="submit" class="btn btn-default">查询</button>
+</form>
+<!-- Result Table -->
+<table class="table">
+    <thead>
+    <tr style="text-align: center">
+        <td>星期</td>
+        <td>日期</td>
+        <td>上班打卡</td>
+        <td>下班打卡</td>
+        <td>考勤状态</td>
+        <td>备注</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% import datetime %}
+    {% for attence in results %}
+    <tr>
+        {% set status_color = '#FF0000' if attence.status not in [u'正常', u'周末加班', u'审核通过'] else '#000000' %}
+        {% set year,month,day = map(int, attence.date.split('-')) %}
+        {% set weekday = datetime.datetime(year, month, day).weekday() %}
+        <td>{{[u'星期一', u'星期二', u'星期三', u'星期四', u'星期五', u'星期六', u'星期日'][weekday]}}</td>
+        <td>{{attence.date}}</td>
+        <td>{{attence.login.strftime('%Y-%m-%d %H:%M:%S') if attence.login != None else ''}}</td>
+        <td>{{attence.logout.strftime('%Y-%m-%d %H:%M:%S') if attence.logout != None else ''}}</td>
+        <td style="color: {{status_color}}">{{attence.status if attence.status != None else ''}}</td>
+        <td>
+            <a href="javascript:void(0)" data-toggle="modal" data-target="#info-modal" data-date="{{attence.date}}">
+                {% if attence.status not in [u'正常', u'周末加班', None] and attence.info == None %}
+                {% comment None means the work day is not over yet %}
+                维护
+                {% elif attence.info != None %}
+                查看已提交维护
+                {% end %}
+            </a>
+        </td>
+    </tr>
+    {% end %}
+    </tbody>
+</table>
+<!-- info modal -->
+<div class="modal fade" id="info-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">异常考勤维护</h4>
+            </div>
+            <div class="modal-body">
+                <form id="info-form">
+                    <div class="form-group" hidden>
+                        <label for="check-date">Date</label>
+                        <input type="text" id="check-date" name="check-date" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-time">上班打卡时间</label>
+                        <span class="help-block">格式: <code>yyyy-mm-dd HH:MM:SS</code>. <strong>请使用英文冒号</strong></span>
+                        <input type="datetime" class="form-control" id="checkin-time" name="checkin-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-time">下班打卡时间</label>
+                        <span class="help-block">格式: <code>yyyy-mm-dd HH:MM:SS</code>. <strong>请使用英文冒号</strong></span>
+                        <input type="datetime" class="form-control" id="checkout-time" name="checkout-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="info">说明</label>
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="other">其他
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="morning-off">上半天请假
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="afternoon-off">下半天请假
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="day-off">全天请假
+                        </label>
+                        <textarea class="form-control" id="info" name="info" rows="2"></textarea>
+                    </div>
+                    <p class="text-right">
+                        <button  type="submit" class="btn btn-primary">提交</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
