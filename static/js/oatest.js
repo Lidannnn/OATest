@@ -80,3 +80,19 @@ $("#btn-checkout").on("click", function(event) {
         }
     })
 });
+
+/**
+ * register.html
+ */
+$("#user-email").blur(function() {
+    var email_input = $(this);
+    var email = email_input.val();
+    if(!/^\w+_?\w+$/i.test(email)) {
+        $(".btn-primary").attr("disabled", "disabled");
+        email_input.parent().addClass("has-error");
+        alert("不需要写@qiyi.com")
+    } else {
+        $(".btn-primary").removeAttr("disabled");
+        email_input.parent().removeClass("has-error");
+    }
+});
