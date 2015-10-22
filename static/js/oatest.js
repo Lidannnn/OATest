@@ -20,10 +20,12 @@ $("#info-modal").on("show.bs.modal", function(event) {
             modal.find(".modal-body button").attr("disabled", "disable");
             modal.find("input").attr("readonly", "readonly");
             modal.find("textarea").attr("readonly", "readonly");
+            modal.find("label input").attr("disabled", "disabled")
         } else {
             modal.find(".modal-body button").removeAttr("disabled");
             modal.find("input").removeAttr("readonly");
             modal.find("textarea").removeAttr("readonly");
+            modal.find("label input").removeAttr("disabled");
         }
     });
 });

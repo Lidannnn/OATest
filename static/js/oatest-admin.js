@@ -33,14 +33,14 @@ $(".btn-dismiss").on("click", function(event) {
 });
 
 /**
- * attence_manage.html
+ * attendance_manage.html
  */
 $(".btn-pass").on("click", function(event) {
     var btn = $(event.target);
     var check_date = btn.data("check_date");
-    var uid = btn.data("uid");
+    var maid = btn.data("maid");
     $.ajax({
-        url: "/admin/attence/" + uid,
+        url: "/admin/attence/" + maid,
         method: "POST",
         data: {
             "check-date": check_date,
@@ -61,9 +61,9 @@ $(".btn-pass").on("click", function(event) {
 $(".btn-reject").on("click", function(event) {
     var btn = $(event.target);
     var check_date = btn.data("check_date");
-    var uid = btn.data("uid");
+    var maid = btn.data("maid");
     $.ajax({
-        url: "/admin/attence/" + uid,
+        url: "/admin/attence/" + maid,
         method: "POST",
         data: {
             "check-date": check_date,

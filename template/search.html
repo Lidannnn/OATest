@@ -25,22 +25,21 @@
     </thead>
     <tbody>
     {% import datetime %}
-    {% for attence in results %}
-    <tr>
-        {% set status_color = '#FF0000' if attence.status not in [u'正常', u'周末加班', u'审核通过'] else '#000000' %}
-        {% set year,month,day = map(int, attence.date.split('-')) %}
+    {% for attendance in results %}
+    {% set danger = 'danger' if attendance.attendance_status in [6, 7, 8, 9] else '' %}
+    <tr class="{{danger}}">
+        {% set year,month,day = map(int, attendance.date.split('-')) %}
         {% set weekday = datetime.datetime(year, month, day).weekday() %}
         <td>{{[u'星期一', u'星期二', u'星期三', u'星期四', u'星期五', u'星期六', u'星期日'][weekday]}}</td>
-        <td>{{attence.date}}</td>
-        <td>{{attence.login.strftime('%Y-%m-%d %H:%M:%S') if attence.login != None else ''}}</td>
-        <td>{{attence.logout.strftime('%Y-%m-%d %H:%M:%S') if attence.logout != None else ''}}</td>
-        <td style="color: {{status_color}}">{{attence.status if attence.status != None else ''}}</td>
+        <td>{{attendance.date}}</td>
+        <td>{{attendance.check_in.strftime('%Y-%m-%d %H:%M:%S') if attendance.check_in != None else ''}}</td>
+        <td>{{attendance.check_out.strftime('%Y-%m-%d %H:%M:%S') if attendance.check_out != None else ''}}</td>
+        <td>{{attendance.status.status_name if attendance.status != None else ''}}</td>
         <td>
-            <a href="javascript:void(0)" data-toggle="modal" data-target="#info-modal" data-date="{{attence.date}}">
-                {% if attence.status not in [u'正常', u'周末加班', None] and attence.info == None %}
-                {% comment None means the work day is not over yet %}
+            <a href="javascript:void(0)" data-toggle="modal" data-target="#info-modal" data-date="{{attendance.date}}">
+                {% if attendance.is_maintainable == 2 %}
                 维护
-                {% elif attence.info != None %}
+                {% elif attendance.is_maintainable == 3 %}
                 查看已提交维护
                 {% end %}
             </a>
@@ -78,16 +77,16 @@
                     <div class="form-group">
                         <label for="info">说明</label>
                         <label class="radio-inline">
-                            <input type="radio" name="status" value="other">其他
+                            <input type="radio" name="status" value="1" checked="checked">其他
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="status" value="morning-off">上半天请假
+                            <input type="radio" name="status" value="3">上半天请假
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="status" value="afternoon-off">下半天请假
+                            <input type="radio" name="status" value="4">下半天请假
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="status" value="day-off">全天请假
+                            <input type="radio" name="status" value="5">全天请假
                         </label>
                         <textarea class="form-control" id="info" name="info" rows="2"></textarea>
                     </div>

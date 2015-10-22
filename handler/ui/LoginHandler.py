@@ -17,6 +17,7 @@ class LoginHandler(BaseHandler):
             self.redirect("/admin/")
         elif self.current_user:
             self.redirect("/")
+
         self.render("login.html", error="")
 
     def post(self, *args, **kwargs):
@@ -25,6 +26,7 @@ class LoginHandler(BaseHandler):
         """
         email = self.get_argument("name") + "@qiyi.com"
         password = self.get_argument("pwd")
+
         try:
             remember = self.get_argument("remember")
         except:
@@ -56,9 +58,9 @@ class LoginHandler(BaseHandler):
                 self.redirect(self.get_argument("next", "/"))
 
         except sqlalchemy.orm.exc.NoResultFound:
-            self.render("login.html", error="{email}没有找到。请先注册再登陆".format(email=email))
+            self.render("login.html", error=u"{email}没有找到。请先注册再登陆".format(email=email))
         except sqlalchemy.orm.exc.MultipleResultsFound:
-            self.render("login.html", error="{email}找到多个。请联系songbowen@qiyi.com".format(email=email))
+            self.render("login.html", error=u"{email}找到多个。请联系songbowen@qiyi.com".format(email=email))
 
 
 

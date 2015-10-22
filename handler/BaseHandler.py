@@ -2,13 +2,19 @@
 __author__ = 'songbowen'
 
 import tornado.web
+import sqlalchemy.orm.exc
 
 from lib.models import DB_Session
+from lib.models import User
 
 
 class BaseHandler(tornado.web.RequestHandler):
 
     def is_admin(self):
+        """ Check out if current_user is admin
+
+        :return bool: true if current_user is admin
+        """
         if not self.current_user:
             return False
         else:

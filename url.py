@@ -5,10 +5,10 @@ from handler.ui.IndexHandler import IndexHandler
 from handler.ui.LoginHandler import LoginHandler
 from handler.interface.LogoutHandler import LogoutHandler
 from handler.ui.SearchHandler import SearchHandler
-from handler.interface.AttenceHandler import AttenceHandler
+from handler.interface.AttendanceHandler import AttendanceHandler
 from handler.ui.UserinfoHandler import UserinfoHandler
 from handler.ui.RegisterHandler import RegisterHandler
-from handler.ui.AdminHandler import AdminIndexHandler, UserManagementHandler, AttenceManagementHandler
+from handler.ui.AdminHandler import AdminIndexHandler, UserManagementHandler, AttendanceManagementHandler
 
 
 url_pattern = [
@@ -18,8 +18,8 @@ url_pattern = [
     (r"/logout/", LogoutHandler),
     (r"/search/", SearchHandler),
     (r"/userinfo/", UserinfoHandler),
-    (r"/attence/(\w+)/", AttenceHandler),
+    (r"/attence/(\w+)/", AttendanceHandler),
     (r"/admin/", AdminIndexHandler),
     (r"/admin/user/(\d+)?", UserManagementHandler),
-    (r"/admin/attence/(\d+)?", AttenceManagementHandler)
+    (r"/admin/attence/(\d+)?", AttendanceManagementHandler)
 ]

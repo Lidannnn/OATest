@@ -8,21 +8,19 @@ import sqlalchemy.orm.exc
 
 from handler.BaseHandler import BaseHandler
 from lib.models import User
-from lib.models import Attence
+from lib.models import Attendance
 
 
 class IndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        # redirect to admin page if current user is admin
-        if self.is_admin():
-            self.redirect(self.get_argument("next", "/admin/"))
 
         is_checkin = False
         is_checkout = False
         checkin_time = ""
         checkout_time = ""
         today = datetime.datetime.today().strftime("%Y-%m-%d")
+
         try:
             user = self.session.query(User).filter(
                 User.id == self.current_user,
@@ -33,17 +31,20 @@ class IndexHandler(BaseHandler):
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
+        if user.is_admin == 1:
+            return self.redirect(self.get_argument("next", "/admin/"))
+
         try:
             # 今天有一条考勤记录，说明已经打过上班卡
-            attence = self.session.query(Attence).filter(
-                Attence.userid == self.current_user,
-                Attence.date == today
+            attendance = self.session.query(Attendance).filter(
+                Attendance.userid == user.id,
+                Attendance.date == today
             ).one()
 
             is_checkin = True
-            is_checkout = True if attence.logout is not None else False
-            checkin_time = attence.login.strftime("%Y-%m-%d %H:%M:%S")
-            checkout_time = attence.logout.strftime("%Y-%m-%d %H:%M:%S") if is_checkout else ""
+            is_checkout = True if attendance.check_out is not None else False
+            checkin_time = attendance.check_in.strftime("%Y-%m-%d %H:%M:%S")
+            checkout_time = attendance.check_out.strftime("%Y-%m-%d %H:%M:%S") if is_checkout else ""
 
             self.render("index.html", current_user=user, active_tag="index",
                         is_checkin=is_checkin, is_checkout=is_checkout,
@@ -55,6 +56,6 @@ class IndexHandler(BaseHandler):
                         checkin_time=checkin_time, checkout_time=checkout_time)
         except sqlalchemy.orm.exc.MultipleResultsFound:
             # 今天有多条考勤记录
-            self.finish("multiple attence records found on %s" % today)
+            self.finish("multiple attendance records found on %s" % today)
 
 

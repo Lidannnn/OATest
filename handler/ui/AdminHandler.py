@@ -7,23 +7,22 @@ import tornado.web
 import sqlalchemy.orm.exc
 
 from handler.BaseHandler import BaseHandler
-from lib.models import User, Attence, ModifyAttence
-from lib.attence_logic import get_late_overtime_hour
+from lib.models import User, Attendance, ModifyAttendance
+from lib.attendance_logic import get_late_overtime_hour
+from lib.attendance_logic import get_history_late_overtime_hour
 
 
 class AdminIndexHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        if not self.is_admin():
-            self.send_error(status_code=404)
-
         try:
             admin = self.session.query(User).filter(
-                User.id == self.current_user
+                User.id == self.current_user,
+                User.is_admin == 1
             ).one()
             self.render("admin/index.html", current_user=admin, active_tag="index")
         except sqlalchemy.orm.exc.NoResultFound:
-            self.finish("uid %s not found" % self.current_user)
+            self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
@@ -31,30 +30,32 @@ class AdminIndexHandler(BaseHandler):
 class UserManagementHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, uid, *args, **kwargs):
-        if not self.is_admin():
-            self.send_error(status_code=404)
-
         try:
             admin = self.session.query(User).filter(
-                User.id == self.current_user
+                User.id == self.current_user,
+                User.is_admin == 1
             ).one()
         except sqlalchemy.orm.exc.NoResultFound:
-            self.finish("uid %s not found" % self.current_user)
+            self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
         if not uid:
-            users = self.session.query(User).order_by(User.id).all()
+            # 用户管理页面
+            users = self.session.query(User).order_by(User.is_present.desc(), User.id).all()
             self.render("admin/user_manage.html", current_user=admin, active_tag="user_manage", users=users)
         else:
+            # 单个用户考勤管理页面
             try:
                 user = self.session.query(User).filter(
                     User.id == uid
                 ).one()
                 the_month = datetime.datetime.now().strftime("%Y-%m")
+                late_hour_total, overtime_hour_total = get_history_late_overtime_hour(user.id)
                 self.render("admin/user_attence.html", current_user=admin, active_tag="user_manage",
                             late_hour=0, overtime_hour=0,
-                            the_month=the_month, user=user, attences=[])
+                            late_hour_total=late_hour_total, overtime_hour_total=overtime_hour_total,
+                            the_month=the_month, user=user, attendances=[])
             except sqlalchemy.orm.exc.NoResultFound:
                 self.finish("uid %s not found" % self.current_user)
             except sqlalchemy.orm.exc.MultipleResultsFound:
@@ -62,17 +63,15 @@ class UserManagementHandler(BaseHandler):
 
     @tornado.web.authenticated
     def post(self, uid, *args, **kwargs):
-        if not self.is_admin():
-            self.send_error(status_code=404)
-
         month = self.get_argument("search-month")
 
         try:
             admin = self.session.query(User).filter(
-                User.id == self.current_user
+                User.id == self.current_user,
+                User.is_admin == 1
             ).one()
         except sqlalchemy.orm.exc.NoResultFound:
-            self.finish("uid %s not found" % self.current_user)
+            self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
@@ -88,27 +87,27 @@ class UserManagementHandler(BaseHandler):
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
-        attences = self.session.query(Attence).filter(
-            Attence.userid == user.id,
-            Attence.date.like("{month}%".format(month=month))
-        ).order_by(Attence.date).all()
+        attendances = self.session.query(Attendance).filter(
+            Attendance.userid == user.id,
+            Attendance.date.like("{month}%".format(month=month))
+        ).order_by(Attendance.date).all()
         late_hour, overtime_hour = get_late_overtime_hour(user.id, month)
+        late_hour_total, overtime_hour_total = get_history_late_overtime_hour(user.id)
         self.render("admin/user_attence.html", current_user=admin, active_tag="user_manage",
                     late_hour=late_hour, overtime_hour=overtime_hour,
-                    the_month=month, user=user, attences=attences)
+                    late_hour_total=late_hour_total, overtime_hour_total=overtime_hour_total,
+                    the_month=month, user=user, attendances=attendances)
 
     @tornado.web.authenticated
     def delete(self, uid, *args, **kwargs):
         # dismiss a user
-        if not self.is_admin():
-            self.send_error(status_code=404)
-
         if not uid:
             self.finish("uid needed")
 
         try:
             user = self.session.query(User).filter(
-                User.id == uid
+                User.id == uid,
+                User.is_present == 1
             ).one()
             user.is_present = 0
             self.session.commit()
@@ -119,65 +118,132 @@ class UserManagementHandler(BaseHandler):
             self.finish("multiple uid %s found" % self.current_user)
 
 
-class AttenceManagementHandler(BaseHandler):
+class AttendanceManagementHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, uid, *args, **kwargs):
-        if not self.is_admin():
-            self.send_error(status_code=404)
-
         try:
             admin = self.session.query(User).filter(
-                User.id == self.current_user
+                User.id == self.current_user,
+                User.is_admin == 1
             ).one()
-            if not uid:
-                results = self.session.query(User, Attence, ModifyAttence).filter(
-                    ModifyAttence.userid == User.id,
-                    Attence.userid == User.id,
-                    Attence.date == ModifyAttence.date
-                ).order_by(ModifyAttence.id.desc())
-                self.render("admin/attence_manage.html", current_user=admin, active_tag="attence_manage", results=results)
-            else:
-                self.finish("to be done")
         except sqlalchemy.orm.exc.NoResultFound:
-            self.finish("uid %s not found" % self.current_user)
+            self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
             self.finish("multiple uid %s found" % self.current_user)
 
+        if not uid:
+            results = self.session.query(User, Attendance, ModifyAttendance).filter(
+                Attendance.id == ModifyAttendance.attendance_id,
+                User.id == Attendance.userid
+            ).order_by(ModifyAttendance.id.desc()).all()
+            self.render("admin/attendance_manage.html", current_user=admin, active_tag="attence_manage",
+                        results=results)
+        else:
+            self.finish("to be done")
+
     @tornado.web.authenticated
-    def post(self, uid, *args, **kwargs):
-        if not self.is_admin():
+    def post(self, maid, *args, **kwargs):
+        try:
+            admin = self.session.query(User).filter(
+                User.id == self.current_user,
+                User.is_admin == 1
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
             self.send_error(status_code=404)
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            self.finish("multiple uid %s found" % self.current_user)
+
+        if not maid:
+            self.finish("modify_attendance_id not given!")
 
         check_date = self.get_argument("check-date")
         action = self.get_argument("action")
+        modify_attendance_id = maid
 
         try:
-            modify_attence, original_attence = self.session.query(ModifyAttence, Attence).filter(
-                ModifyAttence.userid == uid,
-                Attence.userid == uid,
-                ModifyAttence.date == check_date,
-                Attence.date == check_date
+            modify_attendance, attendance = self.session.query(ModifyAttendance, Attendance).filter(
+                ModifyAttendance.id == modify_attendance_id,
+                ModifyAttendance.modify_status == 1,
+                Attendance.id == ModifyAttendance.attendance_id,
             ).one()
 
             if action == "pass":
-                modify_attence.modify_status = "pass"
-                original_attence.login = modify_attence.modified_login
-                original_attence.logout = modify_attence.modified_logout
-                original_attence.info = modify_attence.info
-                if modify_attence.status == "morning-off":
-                    original_attence.status = u"上半天请假"
-                elif modify_attence.status == "afternoon-off":
-                    original_attence.status = u"下半天请假"
-                elif modify_attence.status == "day-off":
-                    original_attence.status = u"全天请假"
+                # 审批通过
+                # 需要设置：
+                #   modify_attendance.modify_status,
+                #   modify_attendance.modify_time,
+                #   attendance.check_in,
+                #   attendance.check_out,
+                #   attendance.attendance_status
+                #   attendance.is_maintainable
+                modify_attendance.modify_status = 2
+                attendance.check_in = modify_attendance.modify_check_in
+                attendance.check_out = modify_attendance.modify_check_out
+                attendance.is_maintainable = 3
+                if modify_attendance.modify_attendance_status == 1:
+                    # 其他类型的维护，多半是忘打卡
+                    # 更新考勤状态
+                    if attendance.check_in > attendance.legal_check_in:
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 迟到且早退
+                            attendance.attendance_status = 8
+                        else:
+                            # 迟到
+                            attendance.attendance_status = 6
+                    else:
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 早退
+                            attendance.attendance_status = 7
+                        else:
+                            # 正常
+                            attendance.attendance_status = 2
+                elif modify_attendance.modify_attendance_status == 3:
+                    # 上半天请假
+                    attendance.legal_check_in += datetime.timedelta(hours=5)
+                    if attendance.check_in > attendance.legal_check_in:
+                        # 请假还迟到，任性！(╰_╯)
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 迟到且早退
+                            attendance.attendance_status = 8
+                        else:
+                            # 迟到
+                            attendance.attendance_status = 6
+                    else:
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 早退
+                            attendance.attendance_status = 7
+                        else:
+                            # 正常，设置为上半天请假
+                            attendance.attendance_status = 3
+                elif modify_attendance.modify_attendance_status == 4:
+                    # 下半天请假
+                    attendance.legal_check_out -= datetime.timedelta(hours=4)
+                    if attendance.check_in > attendance.legal_check_in:
+                        # 请假还迟到，任性！(╰_╯)
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 迟到且早退
+                            attendance.attendance_status = 8
+                        else:
+                            # 迟到
+                            attendance.attendance_status = 6
+                    else:
+                        if attendance.check_out < attendance.legal_check_out:
+                            # 早退
+                            attendance.attendance_status = 7
+                        else:
+                            # 正常，设置为下半天请假
+                            attendance.attendance_status = 4
+                elif modify_attendance.modify_attendance_status == 5:
+                    # 全天请假
+                    attendance.attendance_status = 5
                 else:
-                    original_attence.status = u"正常"
+                    pass
                 self.session.commit()
                 self.finish("ok")
 
             if action == "reject":
-                modify_attence.modify_status = "reject"
-                original_attence.status = u"审核拒绝"
+                modify_attendance.modify_status = 3
+                attendance.is_maintainable = 2
                 self.session.commit()
                 self.finish("ok")
         except sqlalchemy.orm.exc.NoResultFound:
