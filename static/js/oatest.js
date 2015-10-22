@@ -90,7 +90,7 @@ $("#user-email").blur(function() {
     if(!/^\w+_?\w+$/i.test(email)) {
         $(".btn-primary").attr("disabled", "disabled");
         email_input.parent().addClass("has-error");
-        alert("不需要写@qiyi.com")
+        alert("格式错误！")
     } else {
         $(".btn-primary").removeAttr("disabled");
         email_input.parent().removeClass("has-error");
