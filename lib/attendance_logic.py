@@ -50,7 +50,6 @@ def get_late_overtime_hour(uid, month):
     :param uid: user id
     :param month: format 'yyyy-mm'
     """
-    # todo: not work now!
     session = DB_Session()
     late_hour_total = 0
     overtime_hour_total = 0
