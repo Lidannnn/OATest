@@ -23,8 +23,21 @@
     <div class="panel-heading">通知</div>
     <div class="panel-body">
         <ul>
-            <li>系统追加<mark><strong>外包公司信息</strong></mark>和<mark><strong>所在工作组</strong></mark>两项内容，请在个人信息中修改</li>
-            <li>目前不支持凌晨12:00之后打下班卡</li>
+            <li>增加<mark><strong>外包公司信息</strong></mark>和<mark><strong>所在工作组</strong></mark>两项内容，请在<a href="/userinfo/">个人信息</a>中修改</li>
+            <li>增加考勤限制：
+                <ul>
+                    <li>没打上班卡时不能打下班卡</li>
+                    <li>当天的上、下班打卡只能打一次</li>
+                    <li>不支持跨天打卡，每天23:59分结算当天考勤状态</li>
+                </ul>
+            </li>
+            <li>增加异常考勤维护功能：
+                <ul>
+                    <li>老系统的一场考勤不提供维护入口</li>
+                    <li>当天考勤结算完成后方能进行维护</li>
+                    <li>维护信息有管理员进行审核，审核中&审核通过的考勤信息会被冻结，审核失败的考勤信息可以再次提交</li>
+                </ul>
+            </li>
             <li>如有问题请发送邮件反馈给songbowen@qiyi.com, 并抄送wutiantina@qiyi.com, meiqian@qiyi.com</li>
         </ul>
     </div>

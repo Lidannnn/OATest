@@ -31,6 +31,22 @@ $("#info-modal").on("show.bs.modal", function(event) {
 });
 $("#info-form").on("submit", function(event) {
     event.preventDefault();
+    var check_in = $("#checkin-time");
+    var check_out = $("#checkout-time");
+    if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(check_in.val())) {
+        alert("上班时间格式错误！");
+        check_in.parent().addClass("has-error");
+        return false;
+    } else {
+        check_in.parent().removeClass("has-error");
+    }
+    if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(check_out.val())) {
+        alert("下班时间格式错误！");
+        check_out.parent().addClass("has-error");
+        return false
+    } else {
+        check_out.parent().removeClass("has-error");
+    }
     $.ajax({
         url: "/attence/submit_info/",
         method: "POST",

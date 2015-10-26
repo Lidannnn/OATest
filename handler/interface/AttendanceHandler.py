@@ -139,6 +139,7 @@ class AttendanceHandler(BaseHandler):
                 self.finish("ok")
             except sqlalchemy.orm.exc.NoResultFound:
                 # 当天还没有考勤记录
+                # todo: 用户可能跨天打卡
                 self.finish(u"没有打卡记录，请先打上班卡")
             except sqlalchemy.orm.exc.MultipleResultsFound:
                 self.finish(u"当天有多条打卡记录，请联系songbowen@qiyi.com")
