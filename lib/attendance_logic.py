@@ -230,9 +230,13 @@ def update_attendance_status(uid):
     Run set_legal_check first!
     """
     session = DB_Session()
-    user = session.query(User).filter(
-        User.id == uid
-    ).one()
+    try:
+        user = session.query(User).filter(
+            User.id == uid
+        ).one()
+    except sqlalchemy.orm.exc.NoResultFound:
+        print "uid %s not found" % uid
+        return None
     attendances = session.query(Attendance).filter(
         Attendance.userid == user.id
     ).all()
@@ -260,8 +264,10 @@ def update_attendance_status(uid):
     session.commit()
 
 if __name__ == "__main__":
-    print get_late_overtime_hour(6, "2015-10")
-    print get_history_late_overtime_hour(6)
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    set_attendance_status_daily(today)
+    # print get_late_overtime_hour(6, "2015-10")
+    # print get_history_late_overtime_hour(6)
     # set_attendance_status_daily("2015-10-22")
     # set_legal_check(7)
     # update_attendance_status(7)
