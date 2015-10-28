@@ -15,7 +15,9 @@
         <td>公司</td>
         <td>工作组</td>
         <td>上班时间</td>
+        <!--
         <td>迟到次数</td>
+        -->
         <td>操作</td>
     </tr>
     </thead>
@@ -33,7 +35,9 @@
         <td>{{user.company if user.company is not None else ''}}</td>
         <td>{{user.team if user.team is not None else ''}}</td>
         <td>{{user.banci}}</td>
+        <!--
         <td>{{user.latecount}}</td>
+        -->
         <td>
             <button type="button" class="btn btn-default btn-sm btn-view-attence" data-uid="{{user.id}}">考勤记录</button>
             {% if user.is_present == 1 %}
