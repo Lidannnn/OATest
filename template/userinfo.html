@@ -13,7 +13,7 @@
     <p>您没有填写工作组信息，请尽快填写</p>
 </div>
 {% end %}
-<form class="form-horizontal" style="max-width: 500px;" method="post">
+<form id="user-info-form" class="form-horizontal" style="max-width: 500px;" method="post">
     <div class="form-group">
         <label for="user-name" class="col-sm-3 control-label">姓名</label>
         <div class="col-sm-9">
@@ -59,12 +59,14 @@
         <label for="user-company" class="col-sm-3 control-label">公司</label>
         <div class="col-sm-9">
             <input id="user-company" name="user-company" class="form-control" type="text" value="{{current_user.company if current_user.company is not None else ''}}" placeholder="请填入您所在公司的名称">
+            <span id="company-help-block" class="help-block">不能超过50字符</span>
         </div>
     </div>
     <div class="form-group">
         <label for="user-team" class="col-sm-3 control-label">奇艺工作组</label>
         <div class="col-sm-9">
             <input id="user-team" name="user-team" class="form-control" type="text" value="{{current_user.team if current_user.team is not None else ''}}" placeholder="请填入您在爱奇艺所在的工作组, 如：测试组">
+            <span id="team-help-block" class="help-block">不能超过50字符</span>
         </div>
     </div>
     <button type="submit" class="btn btn-primary pull-right">保存</button>

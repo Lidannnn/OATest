@@ -140,6 +140,18 @@ class AttendanceHandler(BaseHandler):
             except sqlalchemy.orm.exc.NoResultFound:
                 # 当天还没有考勤记录
                 # todo: 用户可能跨天打卡
+                yesterday = current_date - datetime.timedelta(days=1)
+                try:
+                    # 查找上一天的打卡记录
+                    last_attendance = self.session.query(Attendance).filter(
+                        Attendance.date == yesterday.strftime("%Y-%m-%d")
+                    ).one()
+                except sqlalchemy.orm.exc.NoResultFound:
+                    # 上一天也没有打卡记录……
+                    pass
+                except sqlalchemy.orm.exc.MultipleResultsFound:
+                    # 上一天有多条打卡记录……
+                    pass
                 self.finish(u"没有打卡记录，请先打上班卡")
             except sqlalchemy.orm.exc.MultipleResultsFound:
                 self.finish(u"当天有多条打卡记录，请联系songbowen@qiyi.com")
