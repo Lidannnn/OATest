@@ -5,8 +5,8 @@ import datetime
 
 import sqlalchemy.orm.exc
 
-from lib.models import User, Attendance
-from lib.models import DB_Session
+from models import User, Attendance
+from models import DB_Session
 
 
 def set_legal_check(uid):
