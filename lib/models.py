@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 
 
-engine = create_engine("postgresql://postgres:root@localhost/OATest", encoding="utf-8")
+engine = create_engine("postgresql://postgres:root@localhost/test", encoding="utf-8")
 Base = declarative_base()
 DB_Session = sessionmaker(bind=engine)
 
