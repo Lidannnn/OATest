@@ -3,12 +3,12 @@
 {% include "nav_bar.html" %}
 
 {% block main_content %}
-{% if not current_user.company %}
+{% if current_user.company == 1 %}
 <div class="alert alert-danger" role="alert">
     <p>您没有填写公司信息，请尽快填写</p>
 </div>
 {% end %}
-{% if not current_user.team %}
+{% if current_user.team == 1 %}
 <div class="alert alert-danger" role="alert">
     <p>您没有填写工作组信息，请尽快填写</p>
 </div>

@@ -52,7 +52,7 @@ class LoginHandler(BaseHandler):
 
             if self.is_admin():
                 self.redirect(self.get_argument("next", "/admin/"))
-            elif not user.team or not user.company:
+            elif user.team == 1 or user.company == 1:
                 self.redirect(self.get_argument("next", "/userinfo/"))
             else:
                 self.redirect(self.get_argument("next", "/"))
