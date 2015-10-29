@@ -5,7 +5,22 @@
 {% import datetime %}
 
 {% block main_content %}
-<table class="table table-bordered table-hover">
+<form class="form-inline" method="get">
+    <div class="form-group">
+        <label for="search-team">工作组</label>
+        <select id="search-team" name="search-team" class="form-control">
+            {% for team in teams %}
+            {% if team.name == current_team %}
+            <option selected>{{team.name}}</option>
+            {% else %}
+            <option>{{team.name}}</option>
+            {% end %}
+            {% end %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-default">查询</button>
+</form>
+<table class="table table-hover">
     <thead>
     <tr style="text-align: center;">
         <td>#</td>
@@ -32,8 +47,8 @@
         <td>{{user.name}}</td>
         <td>{{user.email}}</td>
         <td>{{user.createdate.strftime('%Y-%m-%d')}}</td>
-        <td>{{user.company if user.company is not None else ''}}</td>
-        <td>{{user.team if user.team is not None else ''}}</td>
+        <td>{{user.company_name.name}}</td>
+        <td>{{user.team_name.name}}</td>
         <td>{{user.banci}}</td>
         <!--
         <td>{{user.latecount}}</td>

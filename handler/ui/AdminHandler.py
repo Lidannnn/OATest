@@ -7,7 +7,7 @@ import tornado.web
 import sqlalchemy.orm.exc
 
 from handler.BaseHandler import BaseHandler
-from lib.models import User, Attendance, ModifyAttendance
+from lib.models import User, Attendance, ModifyAttendance, Team
 from lib.attendance_logic import get_late_overtime_hour
 from lib.attendance_logic import get_history_late_overtime_hour
 
@@ -42,8 +42,21 @@ class UserManagementHandler(BaseHandler):
 
         if not uid:
             # 用户管理页面
-            users = self.session.query(User).order_by(User.is_present.desc(), User.id).all()
-            self.render("admin/user_manage.html", current_user=admin, active_tag="user_manage", users=users)
+            teams = self.session.query(Team).order_by(Team.id).all()
+            row2dict = lambda rows: {row.name: row.id for row in rows}
+            team_dict = row2dict(teams)
+
+            search_team = self.get_argument("search-team", default="")
+
+            if not search_team or search_team not in team_dict:
+                users = self.session.query(User).order_by(User.is_present.desc(), User.id).all()
+            else:
+                users = self.session.query(User).filter(
+                    User.team == team_dict[search_team]
+                ).order_by(User.is_present.desc(), User.id).all()
+
+            self.render("admin/user_manage.html", current_user=admin, active_tag="user_manage",
+                        users=users, teams=teams, current_team=search_team)
         else:
             # 单个用户考勤管理页面
             try:

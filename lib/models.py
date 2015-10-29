@@ -17,6 +17,42 @@ Base = declarative_base()
 DB_Session = sessionmaker(bind=engine)
 
 
+class Company(Base):
+    """ public.company
+
+    This table stores all company name
+    """
+    __tablename__ = "company"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+
+    user = relationship("User", backref="company_name")
+
+    def __repr__(self):
+        return "<Company(id={id}, company_name={name})>".format(
+            id=self.id, name=self.company_name
+        )
+
+
+class Team(Base):
+    """ public.team
+
+    This table stores all team in our company.
+    """
+    __tablename__ = "team"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+
+    user = relationship("User", backref="team_name")
+
+    def __repr__(self):
+        return "<Team(id={id}, team_name={name})>".format(
+            id=self.id, name=self.team_name
+        )
+
+
 class AttendanceStatus(Base):
     """ public.attendance_status
 
@@ -136,8 +172,8 @@ class User(Base):
     createdate = Column(TIMESTAMP, nullable=False)
     banci = Column(String, nullable=False, default="10:00")
     latecount = Column(Integer, default=0)
-    company = Column(String, default="")
-    team = Column(String, default="")
+    company = Column(Integer, ForeignKey("company.id"), default=1)
+    team = Column(Integer, ForeignKey("team.id"), default=1)
     is_present = Column(Integer, default=1)
     is_admin = Column(Integer, default=0)
     dismiss_time = Column(TIMESTAMP)
@@ -151,13 +187,18 @@ class User(Base):
 if __name__ == "__main__":
     # Base.metadata.create_all(engine)
     session = DB_Session()
+    companies = session.query(Company).order_by(Company.id).all()
+
+    row2dict = lambda rows: {row.name: row.id for row in rows}
+    print row2dict(companies)
+    # print map(row2dict, companies)
     # result = session.query(Attendance).all()
     # print result[0].status.status_name
     # results = session.query(User, Attendance, ModifyAttendance).filter(
     #     Attendance.id == ModifyAttendance.attendance_id,
     #     User.id == Attendance.userid
     # ).order_by(ModifyAttendance.id.desc())
-    results = session.query(User).order_by(
-        User.is_present.desc(), User.id
-    )
-    print results.all()
+    # results = session.query(User).order_by(
+    #     User.is_present.desc(), User.id
+    # )
+    # print results.all()

@@ -6,7 +6,7 @@ import datetime
 import sqlalchemy.orm.exc
 
 from handler.BaseHandler import BaseHandler
-from lib.models import User
+from lib.models import User, Company, Team
 
 
 class RegisterHandler(BaseHandler):
@@ -18,10 +18,13 @@ class RegisterHandler(BaseHandler):
         """
         显示注册页面
         """
+        companies = self.session.query(Company).order_by(Company.id).all()
+        teams = self.session.query(Team).order_by(Team.id).all()
+
         if self.current_user:
             self.redirect(self.get_argument("next", "/"))
         else:
-            self.render("register.html", error="")
+            self.render("register.html", error="", companies=companies, teams=teams)
 
     def post(self, *args, **kwargs):
         """
@@ -34,18 +37,29 @@ class RegisterHandler(BaseHandler):
         company = self.get_argument("user-company")
         team = self.get_argument("user-team")
 
+        companies = self.session.query(Company).order_by(Company.id).all()
+        teams = self.session.query(Team).order_by(Team.id).all()
+        row2dict = lambda rows: {row.name: row.id for row in rows}
+
+        company_dict = row2dict(companies)
+        team_dict = row2dict(teams)
+
         if not name:
-            self.render("register.html", error="姓名不能为空")
+            self.render("register.html", error="姓名不能为空", companies=companies, teams=teams)
         if not email:
-            self.render("register.html", error="邮箱不能为空")
+            self.render("register.html", error="邮箱不能为空", companies=companies, teams=teams)
         if not pwd:
-            self.render("register.html", error="密码不能为空")
+            self.render("register.html", error="密码不能为空", companies=companies, teams=teams)
         if not worktime:
-            self.render("register.html", error="上班时间不能为空")
-        if not company:
-            self.render("register.html", error="公司不能为空")
-        if not team:
-            self.render("register.html", error="工作组不能为空")
+            self.render("register.html", error="上班时间不能为空", companies=companies, teams=teams)
+        if company not in company_dict.keys():
+            self.render("register.html", error="公司不存在啊亲~", companies=companies, teams=teams)
+        if company_dict[company] == 1:
+            self.render("register.html", error="请选择公司", companies=companies, teams=teams)
+        if team not in team_dict.keys():
+            self.render("register.html", error="工作组不存在啊亲~", companies=companies, teams=teams)
+        if team_dict[team] == 1:
+            self.render("register.html", error="请选择工作组", companies=companies, teams=teams)
 
         email += '@qiyi.com'
 
@@ -61,8 +75,8 @@ class RegisterHandler(BaseHandler):
                 email=email,
                 passcode=pwd,
                 banci=worktime,
-                company=company,
-                team=team,
+                company=company_dict[company],
+                team=team_dict[team],
                 createdate=datetime.datetime.now()
             )
             self.session.add(user)
