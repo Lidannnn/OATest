@@ -112,26 +112,3 @@ $("#user-email").blur(function() {
         email_input.parent().removeClass("has-error");
     }
 });
-
-/**
- * userinfo.html
- */
-$("#user-info-form").on("submit", function(event) {
-    var company = $("#user-company");
-    var team = $("#user-team");
-    if(company.val().length > 20) {
-        company.parent().addClass("has-error");
-        alert("公司名太长了！要小于50字符哦~");
-        return false;
-    } else {
-        company.parent().removeClass("has-error");
-    }
-    if(team.val().length > 20) {
-        team.parent().addClass("has-error");
-        alert("工作组太长了！要小于50字符哦~");
-        return false;
-    } else {
-        team.parent().removeClass("has-error");
-    }
-    alert("Done")
-});
