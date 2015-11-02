@@ -2,6 +2,7 @@
 __author__ = 'songbowen'
 
 import sqlalchemy.orm.exc
+from tornado.log import app_log
 
 from handler.BaseHandler import BaseHandler
 from lib.models import User
@@ -26,6 +27,8 @@ class LoginHandler(BaseHandler):
         """
         email = self.get_argument("name") + "@qiyi.com"
         password = self.get_argument("pwd")
+
+        # app_log.info("email={email}&pwd={pwd}".format(email=email, pwd=password))
 
         try:
             remember = self.get_argument("remember")
