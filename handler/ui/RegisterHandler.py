@@ -68,7 +68,8 @@ class RegisterHandler(BaseHandler):
                 User.email == email,
                 User.is_present == 1
             ).one()
-            self.render("register.html", error="邮箱{email}已被注册，请确认邮箱后重试".format(email=email))
+            self.render("register.html", error="邮箱{email}已被注册，请确认邮箱后重试".format(email=email),
+                        companies=companies, teams=teams)
         except sqlalchemy.orm.exc.NoResultFound:
             user = User(
                 name=name,
