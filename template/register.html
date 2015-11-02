@@ -36,7 +36,7 @@
         <label for="user-company" class="col-sm-2 control-label">公司</label>
         <div class="col-sm-10">
             <select id="user-company" name="user-company" class="form-control">
-                {% for company in companies %}
+                {% for company in companies[0:4] %}
                 <option>{{company.name}}</option>
                 {% end %}
             </select>

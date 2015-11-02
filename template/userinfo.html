@@ -59,7 +59,7 @@
         <label for="user-company" class="col-sm-3 control-label">公司</label>
         <div class="col-sm-9">
             <select id="user-company" name="user-company" class="form-control">
-                {% for company in companies[1:] %}
+                {% for company in companies[:5] %}
                 {% if company.id == current_user.company %}
                 <option selected>{{company.name}}</option>
                 {% else %}
@@ -73,7 +73,7 @@
         <label for="user-team" class="col-sm-3 control-label">奇艺工作组</label>
         <div class="col-sm-9">
             <select id="user-team" name="user-team" class="form-control">
-                {% for team in teams[1:] %}
+                {% for team in teams %}
                 {% if team.id == current_user.team %}
                 <option selected>{{team.name}}</option>
                 {% else %}
