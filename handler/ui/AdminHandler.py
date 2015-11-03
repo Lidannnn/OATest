@@ -5,6 +5,7 @@ import datetime
 
 import tornado.web
 import sqlalchemy.orm.exc
+from tornado.log import app_log
 
 from handler.BaseHandler import BaseHandler
 from lib.models import User, Attendance, ModifyAttendance, Team
@@ -20,6 +21,9 @@ class AdminIndexHandler(BaseHandler):
                 User.id == self.current_user,
                 User.is_admin == 1
             ).one()
+
+            app_log.info("[{ip}] Admin Access: {email}".format(ip=self.request.remote_ip, email=admin.email))
+
             self.render("admin/index.html", current_user=admin, active_tag="index")
         except sqlalchemy.orm.exc.NoResultFound:
             self.send_error(status_code=404)
@@ -114,6 +118,16 @@ class UserManagementHandler(BaseHandler):
     @tornado.web.authenticated
     def delete(self, uid, *args, **kwargs):
         # dismiss a user
+        try:
+            admin = self.session.query(User).filter(
+                User.id == self.current_user,
+                User.is_admin == 1
+            ).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return self.send_error(status_code=404)
+        except sqlalchemy.orm.exc.MultipleResultsFound:
+            return self.finish("multiple uid %s found" % self.current_user)
+
         if not uid:
             self.finish("uid needed")
 
@@ -124,6 +138,11 @@ class UserManagementHandler(BaseHandler):
             ).one()
             user.is_present = 0
             self.session.commit()
+
+            app_log.info("[{ip}] User Dismiss: {admin} - {user}".format(ip=self.request.remote_ip,
+                                                                        admin=admin.email,
+                                                                        user=user.email))
+
             self.finish("ok")
         except sqlalchemy.orm.exc.NoResultFound:
             self.finish("uid %s not found" % self.current_user)
@@ -140,9 +159,9 @@ class AttendanceManagementHandler(BaseHandler):
                 User.is_admin == 1
             ).one()
         except sqlalchemy.orm.exc.NoResultFound:
-            self.send_error(status_code=404)
+            return self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
-            self.finish("multiple uid %s found" % self.current_user)
+            return self.finish("multiple uid %s found" % self.current_user)
 
         if not uid:
             results = self.session.query(User, Attendance, ModifyAttendance).filter(
@@ -162,9 +181,9 @@ class AttendanceManagementHandler(BaseHandler):
                 User.is_admin == 1
             ).one()
         except sqlalchemy.orm.exc.NoResultFound:
-            self.send_error(status_code=404)
+            return self.send_error(status_code=404)
         except sqlalchemy.orm.exc.MultipleResultsFound:
-            self.finish("multiple uid %s found" % self.current_user)
+            return self.finish("multiple uid %s found" % self.current_user)
 
         if not maid:
             self.finish("modify_attendance_id not given!")
@@ -251,12 +270,18 @@ class AttendanceManagementHandler(BaseHandler):
                     attendance.attendance_status = 5
                 else:
                     pass
+
+                app_log.info("[{ip}] Modify Attendance Pass: {admin}".format(ip=self.request.remote_ip,
+                                                                             admin=admin.email))
+
                 self.session.commit()
                 self.finish("ok")
 
             if action == "reject":
                 modify_attendance.modify_status = 3
                 attendance.is_maintainable = 2
+                app_log.info("[{ip}] Modify Attendance Reject: {admin}".format(ip=self.request.remote_ip,
+                                                                               admin=admin.email))
                 self.session.commit()
                 self.finish("ok")
         except sqlalchemy.orm.exc.NoResultFound:

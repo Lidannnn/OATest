@@ -24,9 +24,10 @@ def log_function(handler):
     else:
         log_method = access_log.error
     request_time = 1000.0 * handler.request.request_time()
-    log_method("%d %s %s %.2fms", handler.get_status(),
+    log_method("%d %s %s %s %.2fms", handler.get_status(),
                handler._request_summary(),
                handler.request.body_arguments if handler.request.method == "POST" else "",
+               handler.request.cookies,
                request_time)
 
 
@@ -51,5 +52,5 @@ if __name__ == "__main__":
     tornado.log.enable_pretty_logging(options)
 
     server = tornado.httpserver.HTTPServer(Application())
-    server.listen(2735)
+    server.listen(9876)
     tornado.ioloop.IOLoop.current().start()

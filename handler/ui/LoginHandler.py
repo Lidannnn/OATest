@@ -28,12 +28,7 @@ class LoginHandler(BaseHandler):
         email = self.get_argument("name") + "@qiyi.com"
         password = self.get_argument("pwd")
 
-        # app_log.info("email={email}&pwd={pwd}".format(email=email, pwd=password))
-
-        try:
-            remember = self.get_argument("remember")
-        except:
-            remember = False
+        remember = self.get_argument("remember", default=False)
 
         try:
             user = self.session.query(User).filter(
@@ -52,6 +47,8 @@ class LoginHandler(BaseHandler):
                 self.set_secure_cookie("uid", str(user.id), expires_days=1)
 
             self.current_user = str(user.id)
+
+            app_log.info("[{ip}] Login Success: {email}".format(ip=self.request.remote_ip, email=email))
 
             if self.is_admin():
                 self.redirect(self.get_argument("next", "/admin/"))
