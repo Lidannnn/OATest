@@ -8,7 +8,7 @@ import sqlalchemy.orm.exc
 from tornado.log import app_log
 
 from handler.BaseHandler import BaseHandler
-from lib.models import User, Attendance, ModifyAttendance, Team
+from lib.models import User, Attendance, ModifyAttendance, Team, Company
 from lib.attendance_logic import get_late_overtime_hour
 from lib.attendance_logic import get_history_late_overtime_hour
 
@@ -47,20 +47,43 @@ class UserManagementHandler(BaseHandler):
         if not uid:
             # 用户管理页面
             teams = self.session.query(Team).order_by(Team.id).all()
+            companies = self.session.query(Company).order_by(Company.id).all()
             row2dict = lambda rows: {row.name: row.id for row in rows}
             team_dict = row2dict(teams)
+            company_dict = row2dict(companies)
 
             search_team = self.get_argument("search-team", default="")
+            search_company = self.get_argument("search-company", default="")
 
-            if not search_team or search_team not in team_dict:
-                users = self.session.query(User).order_by(User.is_present.desc(), User.id).all()
+            if not search_team or search_team not in team_dict or team_dict[search_team] == 1:
+                # 没有过滤工作组，或工作组不存在，或者“未设置”
+                # 前端页面为了避免歧义，“未设置”显示为“全部”
+                if not search_company or search_company not in company_dict or company_dict[search_company] == 1:
+                    # 没有过滤公司，或公司不存在，或者“未设置”
+                    users = self.session.query(User).order_by(User.is_present.desc(), User.id)
+                else:
+                    # 过滤了公司
+                    users = self.session.query(User).filter(
+                        User.company == company_dict[search_company]
+                    ).order_by(User.is_present.desc(), User.id)
             else:
-                users = self.session.query(User).filter(
-                    User.team == team_dict[search_team]
-                ).order_by(User.is_present.desc(), User.id).all()
+                # 过滤了工作组
+                if not search_company or search_company not in company_dict or company_dict[search_company] == 1:
+                    # 没有过滤公司，或公司不存在，或者“未设置”
+                    users = self.session.query(User).filter(
+                        User.team == team_dict[search_team]
+                    ).order_by(User.is_present.desc(), User.id)
+                else:
+                    # 过滤了公司和工作组
+                    users = self.session.query(User).filter(
+                        User.company == company_dict[search_company],
+                        User.team == team_dict[search_team]
+                    ).order_by(User.is_present.desc(), User.id)
 
             self.render("admin/user_manage.html", current_user=admin, active_tag="user_manage",
-                        users=users, teams=teams, current_team=search_team)
+                        users=users.all(), teams=teams, companies=companies,
+                        present_num=len(users.filter(User.is_present == 1, User.is_admin == 0).all()),
+                        current_team=search_team, current_company=search_company)
         else:
             # 单个用户考勤管理页面
             try:

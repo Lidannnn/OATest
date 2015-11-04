@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 
 
-engine = create_engine("postgresql://postgres:root@localhost:5432/OATest_QA", encoding="utf-8")
+engine = create_engine("postgresql://postgres:root@10.11.130.11:5432/OATest_QA", encoding="utf-8")
 Base = declarative_base()
 DB_Session = sessionmaker(bind=engine)
 
@@ -188,9 +188,12 @@ if __name__ == "__main__":
     # Base.metadata.create_all(engine)
     session = DB_Session()
     companies = session.query(Company).order_by(Company.id).all()
+    users = session.query(User).order_by(User.is_present.desc(), User.id)
 
-    row2dict = lambda rows: {row.name: row.id for row in rows}
-    print row2dict(companies)
+    print dir(users)
+    print users.filter(User.is_present == 1).all()
+    # row2dict = lambda rows: {row.name: row.id for row in rows}
+    # print row2dict(companies)
     # print map(row2dict, companies)
     # result = session.query(Attendance).all()
     # print result[0].status.status_name

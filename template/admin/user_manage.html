@@ -3,6 +3,7 @@
 {% include "nav_bar.html" %}
 
 {% import datetime %}
+{% from lib.models import User %}
 
 {% block main_content %}
 <form class="form-inline" method="get">
@@ -10,13 +11,37 @@
         <label for="search-team">工作组</label>
         <select id="search-team" name="search-team" class="form-control">
             {% for team in teams %}
-            {% if team.name == current_team %}
-            <option selected>{{team.name}}</option>
-            {% else %}
-            <option>{{team.name}}</option>
-            {% end %}
+                {% if team.id == 1 %}
+                <option>全部</option>
+                {% else %}
+                    {% if team.name == current_team %}
+                    <option selected>{{team.name}}</option>
+                    {% else %}
+                    <option>{{team.name}}</option>
+                    {% end %}
+                {% end %}
             {% end %}
         </select>
+    </div>
+    <div class="form-group">
+        <label for="search-company">公司</label>
+        <select id="search-company" name="search-company" class="form-control">
+            {% for company in companies %}
+                {% if company.id == 1 %}
+                <option>全部</option>
+                {% else %}
+                    {% if company.name == current_company %}
+                    <option selected>{{company.name}}</option>
+                    {% else %}
+                    <option>{{company.name}}</option>
+                    {% end %}
+                {% end %}
+            {% end %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="present-num">在职人数</label>
+        <input id="present-num" class="form-control" value="{{present_num}}" readonly>
     </div>
     <button type="submit" class="btn btn-default">查询</button>
 </form>
